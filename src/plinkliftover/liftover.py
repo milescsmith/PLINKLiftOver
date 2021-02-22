@@ -17,12 +17,12 @@ Modified by Miles Smith:
  - Update to work with python >=3.7
 """
 
-from typing import Set
+from typing import Set, Tuple
 
-import logging
 from pathlib import Path
 from subprocess import check_output
 
+from plinkliftover.logging import plo_logger as logger
 from rich.console import Console
 from typer import progressbar
 
@@ -30,8 +30,7 @@ console = Console()
 
 
 def map2bed(fin: Path, fout: Path) -> bool:
-    logging.getLogger("plinkliftover")
-    logging.info(f"fin: {fin}, fout: {fout}")
+    logger.info(f"fin: {fin}, fout: {fout}")
     console.print(
         f"Converting [green]MAP[/] file [yellow]{fin.name}[/] file to [green]UCSC BED[/] file [blue]{fout.name}[/]..."
     )
@@ -55,8 +54,7 @@ def liftBed(
     liftOverPath: Path,
     unlifted_set: Set[str],
     lifted_set: Set[str],
-) -> tuple[Set[str]]:
-    logging.getLogger("plinkliftover")
+) -> Tuple[Set[str]]:
     console.print(f"Lifting [green]BED[/] file [blue]{fin.name}[/]...")
     params = {
         "LIFTOVER_BIN": liftOverPath.resolve(),
@@ -88,7 +86,6 @@ def liftBed(
 
 
 def bed2map(fin: Path, fout: Path) -> bool:
-    logging.getLogger("plinkliftover")
     console.print(
         f"Converting lifted [green]BED[/] [blue]{fin.name}[/] file back to [green]MAP[/] [yellow]{fout.name}[/]..."
     )
@@ -105,7 +102,6 @@ def bed2map(fin: Path, fout: Path) -> bool:
 
 
 def liftDat(fin: Path, fout: Path, lifted_set: Set[str]) -> bool:
-    logging.getLogger("plinkliftover")
     console.print(f"Updating [green]DAT[/] file [pink]{fin.name}[/]...")
     lines = fin.read_text().split("\n")
     output = []
@@ -126,7 +122,6 @@ def liftDat(fin: Path, fout: Path, lifted_set: Set[str]) -> bool:
 def liftPed(
     fin: Path, fout: Path, fOldMap: Path, unlifted_set: Set[str]
 ) -> bool:
-    logging.getLogger("plinkliftover")
     # two ways to do it:
     # 1. write unlifted snp list
     #    use PLINK to do this job using --exclude
@@ -147,8 +142,8 @@ def liftPed(
                     f[i * 2] + " " + f[i * 2 + 1] for i in range(3, len(f) // 2)
                 ]
                 if len(f[6:]) != len(flag):
-                    logging.error("Inconsistent length of ped and map files")
-                    logging.error(f"{len(f[6:])} vs {len(flag)}")
+                    logger.error("Inconsistent length of ped and map files")
+                    logger.error(f"{len(f[6:])} vs {len(flag)}")
                     return False
                 newmarker = [m for i, m in enumerate(f[6:]) if flag[i]]
 

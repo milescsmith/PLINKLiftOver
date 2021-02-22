@@ -7,8 +7,9 @@ from distutils.spawn import find_executable
 from pathlib import Path
 
 import typer
-from plinkliftover import __version__, setup_logging
-from plinkliftover.liftover import bed2map, liftBed, liftDat, map2bed
+from plinkliftover import __version__
+from plinkliftover.liftover import bed2map, liftBed, liftDat, liftPed, map2bed
+from plinkliftover.logging import plo_logger as logger
 from rich.console import Console
 
 app = typer.Typer(
@@ -70,8 +71,6 @@ def main(
     lifted_set = set()
     unlifted_set = set()
 
-    setup_logging("plinkliftover")
-
     mapfile = Path(mapfile)
     oldbed = mapfile.with_suffix(".bed")
     map2bed(mapfile, oldbed)
@@ -79,9 +78,22 @@ def main(
     # If a location is not specified for the liftOver executable.
     # assume it is in the User's $PATH.
     if liftoverexecutable is None:
-        liftOverPath = Path(find_executable("liftOver"))
+        try:
+            liftOverPath = Path(find_executable("liftOver"))
+        except TypeError as e:
+            logger.error(
+                "The `liftOver` executable was not found.  Please make sure it is installed and in the PATH"
+            )
+            logger.error(e)
     else:
         liftOverPath = Path(liftoverexecutable)
+        if not liftOverPath.exists():
+            logger.exception(
+                "The `liftOver` executable was not found.  Please make sure it is installed and in the PATH"
+            )
+            raise FileNotFoundError(
+                "The `liftOver` executable was not found.  Please make sure it is installed and in the PATH"
+            )
 
     newbed = Path(f"{mapfile}.bed")
     # unlifted = Path(f"{prefix}.unlifted")
@@ -96,8 +108,10 @@ def main(
 
     if lb_status:
         console.print("lifting [purple]bed[/] file: [green bold]SUCCESS[/]")
+        logger.info(f"lifting bed file: {newbed} - SUCCESS")
     else:
         console.print("lifting [purple]bed[/] file: [red bold]FAILED[/]")
+        logger.info(f"lifting bed file: {newbed} - FAILED")
 
     newmap = Path(f"{prefix}.map")
     bed2map(newbed, newmap)
@@ -111,8 +125,10 @@ def main(
 
         if ld_status:
             console.print("lifting [purple]dat[/] file: [green]SUCCESS[/]")
+            logger.info(f"lifting map file: {newmap} - SUCCESS")
         else:
             console.print("lifting [purple]dat[/] file: [red]FAILED[/]")
+            logger.info(f"lifting map file: {newmap} - FAILED")
 
     if pedfile is not None:
         pedfile = Path(pedfile)
@@ -126,12 +142,15 @@ def main(
             console.print(
                 "lifting [dark_orange3]ped[/] file: [bold green]SUCCESS[/]"
             )
+            logger.info("lifting ped file: SUCCESS")
         else:
             console.print(
                 "lifting [dark_orange3]ped[/] file: [bold red]FAILED[/]"
             )
+            logger.info("lifting ped file: FAILED")
 
     console.print("cleaning up BED files...")
+    logger.info("cleaning up BED files...")
     newbed.unlink()
     oldbed.unlink()
 
