@@ -17,6 +17,8 @@ Modified by Miles Smith:
  - Update to work with python >=3.7
 """
 
+from typing import Set
+
 import logging
 from pathlib import Path
 from subprocess import check_output
@@ -51,9 +53,9 @@ def liftBed(
     fout: Path,
     chainfile: Path,
     liftOverPath: Path,
-    unlifted_set: set[str],
-    lifted_set: set[str],
-) -> tuple[set[str]]:
+    unlifted_set: Set[str],
+    lifted_set: Set[str],
+) -> tuple[Set[str]]:
     logging.getLogger("plinkliftover")
     console.print(f"Lifting [green]BED[/] file [blue]{fin.name}[/]...")
     params = {
@@ -63,7 +65,7 @@ def liftBed(
         "NEW": fout,
         "UNLIFTED": f"{fout}.unlifted",
     }
-    
+
     check_output(params.values())
     # record lifted/unliftd rs
     unlifted_lines = Path(params["UNLIFTED"]).read_text().split("\n")
@@ -102,7 +104,7 @@ def bed2map(fin: Path, fout: Path) -> bool:
     return True
 
 
-def liftDat(fin: Path, fout: Path, lifted_set: set[str]) -> bool:
+def liftDat(fin: Path, fout: Path, lifted_set: Set[str]) -> bool:
     logging.getLogger("plinkliftover")
     console.print(f"Updating [green]DAT[/] file [pink]{fin.name}[/]...")
     lines = fin.read_text().split("\n")
@@ -122,7 +124,7 @@ def liftDat(fin: Path, fout: Path, lifted_set: set[str]) -> bool:
 
 
 def liftPed(
-    fin: Path, fout: Path, fOldMap: Path, unlifted_set: set[str]
+    fin: Path, fout: Path, fOldMap: Path, unlifted_set: Set[str]
 ) -> bool:
     logging.getLogger("plinkliftover")
     # two ways to do it:
