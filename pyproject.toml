@@ -38,7 +38,7 @@ typer = {extras = ["all"], version = "^0.3.2"}
 rich = "^9.8.2"
 
 [tool.poetry.dev-dependencies]
-darglint = "^1.5.8"
+darglint = "^1.7.0"
 isort = "^5.7.0"
 pyupgrade = "^2.7.4"
 black = "^20.8b1"
