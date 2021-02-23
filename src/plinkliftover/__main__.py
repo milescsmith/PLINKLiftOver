@@ -1,15 +1,13 @@
 # type: ignore[attr-defined]
 from typing import Optional
 
-import logging
-import sys
 from distutils.spawn import find_executable
 from pathlib import Path
 
 import typer
 from plinkliftover import __version__
 from plinkliftover.liftover import bed2map, liftBed, liftDat, liftPed, map2bed
-from plinkliftover.logging import plo_logger as logger
+from plinkliftover.logger import plo_logger as logger
 from rich.console import Console
 
 app = typer.Typer(
@@ -81,7 +79,7 @@ def main(
         try:
             liftOverPath = Path(find_executable("liftOver"))
         except TypeError as e:
-            logger.error(
+            logger.exception(
                 "The `liftOver` executable was not found.  Please make sure it is installed and in the PATH"
             )
             logger.error(e)

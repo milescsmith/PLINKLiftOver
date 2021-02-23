@@ -1,9 +1,5 @@
 # type: ignore[attr-defined]
-"""Awesome `plinkliftover` is a Python cli/package created with https://github.com/TezRomacH/python-package-template"""
-from typing import Optional
-
-import logging
-
+"""`plinkliftover` Converts genotype data stored in plink's PED+MAP format from one genome build to another, using liftOver"""
 try:
     from importlib.metadata import PackageNotFoundError, version
 except ImportError:  # pragma: no cover

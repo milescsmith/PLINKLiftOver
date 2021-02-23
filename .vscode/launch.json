@@ -8,22 +8,37 @@
             "name": "Python: Module",
             "type": "python",
             "request": "launch",
-            "module": "plinkliftover.liftover:map2bed"
+            "module": "plinkliftover.__main__",
+            "args": [
+                "--pedfile",
+                "/home/milo/workspace/PlinkLiftOver/data/batch1.tolift.ped",
+                "--prefix",
+                "lifted",
+                "/home/milo/workspace/PlinkLiftOver/data/batch1.tolift.map",
+                "/home/milo/workspace/PlinkLiftOver/data/hg38ToHg19.over.chain.gz"
+            ],
+            "env": {
+                "PYTHONPATH":"${workspaceRoot}:src"
+            }
+
         },
         {
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
-            "program": "/Users/milessmith/workspace/plinkliftover/src/plinkliftover/__main__.py",
+            "program": "${file}",
             "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH":"${workspaceRoot}:src"
+            },
             "args": [
                 "--pedfile",
-                "/Users/milessmith/workspace/amp_genotyping/processed_output/batch1.tolift.ped",
+                "/home/milo/workspace/PlinkLiftOver/data/batch1.tolift.ped",
                 "--prefix",
-                "hg38_",
-                "/Users/milessmith/workspace/amp_genotyping/processed_output/batch1.tolift.map",
-                "/Users/milessmith/workspace/amp_genotyping/processed_output/hg38ToHg19.over.chain.gz"
+                "lifted",
+                "/home/milo/workspace/PlinkLiftOver/data/batch1.tolift.map",
+                "/home/milo/workspace/PlinkLiftOver/data/hg38ToHg19.over.chain.gz"
             ]
         }
     ]
-}%
+}

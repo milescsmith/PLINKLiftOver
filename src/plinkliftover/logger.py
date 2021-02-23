@@ -37,10 +37,10 @@ _previous_memory_usage = None
 plo_logger = logging.getLogger("plinkliftover")
 # Don’t pass log messages on to logging.root and its handler
 plo_logger.propagate = False
-plo_logger.setLevel("INFO")
+plo_logger.setLevel("ERROR")
 plo_logger.addHandler(logging.StreamHandler())  # Logs go to stderr
 plo_logger.handlers[-1].setFormatter(logging.Formatter("%(message)s"))
-plo_logger.handlers[-1].setLevel("INFO")
+plo_logger.handlers[-1].setLevel("ERROR")
 
 
 def get_logger(name):

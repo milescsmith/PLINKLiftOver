@@ -19,10 +19,11 @@ Modified by Miles Smith:
 
 from typing import Set, Tuple
 
+import sys
 from pathlib import Path
 from subprocess import check_output
 
-from plinkliftover.logging import plo_logger as logger
+from plinkliftover.logger import plo_logger as logger
 from rich.console import Console
 from typer import progressbar
 
@@ -39,7 +40,7 @@ def map2bed(fin: Path, fout: Path) -> bool:
     with progressbar(lines) as map_lines:
         for ln in map_lines:
             if len(x := ln.split()) == 4:
-                chrom, rs, mdist, pos = x
+                chrom, rs, _, pos = x
                 output.append(f"chr{chrom}\t{int(pos)-1}\t{int(pos)}\t{rs}")
             else:
                 pass
@@ -90,11 +91,11 @@ def bed2map(fin: Path, fout: Path) -> bool:
         f"Converting lifted [green]BED[/] [blue]{fin.name}[/] file back to [green]MAP[/] [yellow]{fout.name}[/]..."
     )
     bed_lines = fin.read_text().split("\n")
-    output = list()
+    output = []
     with progressbar(bed_lines) as lines:
         for ln in lines:
             if len(x := ln.split()) == 4:
-                chrom, pos0, pos1, rs = x
+                chrom, _, pos1, rs = x
                 chrom = chrom.replace("chr", "")
                 output.append(f"{chrom}\t{rs}\t0.0\t{pos1}")
     fout.write_text("\n".join(output))
@@ -111,7 +112,7 @@ def liftDat(fin: Path, fout: Path, lifted_set: Set[str]) -> bool:
                 output.append(ln)
             else:
                 if len(thing := ln.strip().split()) == 2:
-                    t, rs = thing
+                    _, rs = thing
                     if rs in lifted_set:
                         output.append(ln)
     console.print(f"Writing [green]new DAT[/] file [pink]{fout.name}[/]...")
@@ -130,7 +131,7 @@ def liftPed(
     marker = [i.strip().split()[1] for i in open(fOldMap)]
     flag = [(x not in unlifted_set) for x in marker]
 
-    console.print(f"Updating [green]PED[/] file [orange]{fin.name}[/]...")
+    console.print(f"Updating [green]PED[/] file [orange]{fin.resolve()}[/]...")
     lines = fin.read_text().split("\n")
     output = []
     with progressbar(lines) as liftped_lines:
@@ -144,12 +145,16 @@ def liftPed(
                 if len(f[6:]) != len(flag):
                     logger.error("Inconsistent length of ped and map files")
                     logger.error(f"{len(f[6:])} vs {len(flag)}")
-                    return False
+                    sys.exit(-1)
                 newmarker = [m for i, m in enumerate(f[6:]) if flag[i]]
 
                 a = "\t".join(f[:6])
                 b = "\t".join(newmarker)
                 output.append(f"{a}\t{b}\n")
             # print marker[:10]
-    fout.write_text("".join(output))
+    console.print(
+        f"Writing new [green]PED[/] data to [light_slate_blue]{fout.resolve()}[/]"
+    )
+    with open(fout, "w") as fo:
+        fo.writelines(output)
     return True
