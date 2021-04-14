@@ -40,7 +40,7 @@ psutil = "^5.8.0"
 
 [tool.poetry.dev-dependencies]
 darglint = "^1.5.8"
-isort = "^5.7.0"
+isort = "^5.8.0"
 pyupgrade = "^2.7.4"
 black = "^20.8b1"
 mypy = "0.812"
