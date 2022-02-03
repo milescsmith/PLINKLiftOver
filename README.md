@@ -1,6 +1,6 @@
-# plinkliftover
+# PLINKLiftOver
 
-<div align="center">
+<div align="justified">
 
 [![Build status](https://github.com/milescsmith/plinkliftover/workflows/build/badge.svg?branch=master&event=push)](https://github.com/milescsmith/plinkliftover/actions?query=workflow%3Abuild)
 [![Python Version](https://img.shields.io/pypi/pyversions/plinkliftover.svg)](https://pypi.org/project/plinkliftover/)
@@ -8,68 +8,77 @@
 
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Security: bandit](https://img.shields.io/badge/security-bandit-green.svg)](https://github.com/PyCQA/bandit)
-[![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/milescsmith/plinkliftover/blob/master/.pre-commit-config.yaml)
 [![Semantic Versions](https://img.shields.io/badge/%F0%9F%9A%80-semantic%20versions-informational.svg)](https://github.com/milescsmith/plinkliftover/releases)
 [![License](https://img.shields.io/github/license/milescsmith/plinkliftover)](https://github.com/milescsmith/plinkliftover/blob/master/LICENSE)
+![Alt](https://repobeats.axiom.co/api/embed/8d9c682229fb45f45eef3f300367eb33a44bd347.svg "Repobeats analytics image")
 
-Awesome `plinkliftover` is a Python cli/package created with https://github.com/TezRomacH/python-package-template
+**PLINKLiftOver** is a utility enabling [liftOver](http://genome.ucsc.edu/cgi-bin/hgLiftOver)
+to work on genomics files from [PLINK](https://www.cog-genomics.org/plink/),
+allowing one to update the coordinates from one genome reference version to
+another.
 
 </div>
-
 ## Installation
+
+PLINKLiftOver requires
+* Python 3.8 
+* The command line version of [liftOver](http://genome.ucsc.edu/cgi-bin/hgLiftOver),
+installed and on the system path
+* An appropriate [chain file](http://hgdownload.soe.ucsc.edu/downloads.html#liftover)
+* The [MAP file](https://zzz.bwh.harvard.edu/plink/data.shtml) from a PLINK
+dataset
 
 ```bash
 pip install -U plinkliftover
 ```
 
-or install with `Poetry`
+or install with the development version with
 
 ```bash
-poetry add plinkliftover
+pip install -U git+https://github.com/milescsmith/plinkliftover.git
 ```
 
-Then you can run
+## Usage
 
 ```bash
-plinkliftover --help
+Usage: plinkliftover [OPTIONS] MAPFILE CHAINFILE
+
+  Converts genotype data stored in plink's PED+MAP format from one genome
+  build to another, using liftOver.
+
+Arguments:
+  MAPFILE    The plink MAP file to `liftOver`.  [required]
+  CHAINFILE  The location of the chain files to provide to `liftOver`.
+             [required]
+
+Options:
+  --pedfile TEXT             Optionally remove "unlifted SNPs" from the plink
+                             PED file after running `liftOver`.
+  --datfile TEXT             Optionally remove 'unlifted SNPs' from a data
+                             file containing a list of SNPs (e.g. for
+                             --exclude or --include in `plink`)
+  --prefix TEXT              The prefix to give to the output files.
+  --liftoverexecutable TEXT  The location of the `liftOver` executable.
+  -v, --version              Prints the version of the plinkliftover package.
+  --help                     Show this message and exit.
 ```
+
+For example
 
 ```bash
-plinkliftover --name Roman
+plinkliftover updating.map hg19ToHg38.over.chain.gz
 ```
 
-or if installed with `Poetry`:
+### Note!
+
+By default, [PLINK 2.0](https://www.cog-genomics.org/plink/2.0/) does not 
+use/create the required MAP file.  It can be generated using PLINK 1.9 by
 
 ```bash
-poetry run plinkliftover --help
+plink --bfile original --recode --out to_update
 ```
 
-```bash
-poetry run plinkliftover --name Roman
-```
-
-## 📈 Releases
-
-You can see the list of available releases on the [GitHub Releases](https://github.com/milescsmith/plinkliftover/releases) page.
-
-We follow [Semantic Versions](https://semver.org/) specification.
-
-We use [`Release Drafter`](https://github.com/marketplace/actions/release-drafter). As pull requests are merged, a draft release is kept up-to-date listing the changes, ready to publish when you’re ready. With the categories option, you can categorize pull requests in release notes using labels.
-
-For Pull Request this labels are configured, by default:
-
-|               **Label**               |  **Title in Releases**  |
-| :-----------------------------------: | :---------------------: |
-|       `enhancement`, `feature`        |       🚀 Features       |
-| `bug`, `refactoring`, `bugfix`, `fix` | 🔧 Fixes & Refactoring  |
-|       `build`, `ci`, `testing`        | 📦 Build System & CI/CD |
-|              `breaking`               |   💥 Breaking Changes   |
-|            `documentation`            |    📝 Documentation     |
-|            `dependencies`             | ⬆️ Dependencies updates |
-
-You can update it in [`release-drafter.yml`](https://github.com/milescsmith/plinkliftover/blob/master/.github/release-drafter.yml).
-
-GitHub creates the `bug`, `enhancement`, and `documentation` labels for you. Dependabot creates the `dependencies` label. Create the remaining labels on the Issues tab of your GitHub repository, when you need them.
+where `original` is the prefix for the bed/bim/fam files and `to_update` is the prefix to give the new files.
 
 ## 🛡 License
 

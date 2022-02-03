@@ -5,9 +5,9 @@ from distutils.spawn import find_executable
 from pathlib import Path
 
 import typer
-from plinkliftover import __version__
-from plinkliftover.liftover import bed2map, liftBed, liftDat, liftPed, map2bed
-from plinkliftover.logger import plo_logger as logger
+from . import __version__
+from .liftover import bed2map, liftBed, liftDat, liftPed, map2bed
+from .logger import plo_logger as logger
 from rich.console import Console
 
 app = typer.Typer(
@@ -66,9 +66,6 @@ def main(
     # Show usage message if user hasn't provided any arguments, rather
     # than giving a non-descript error message with the usage()
 
-    lifted_set = set()
-    unlifted_set = set()
-
     mapfile = Path(mapfile)
     oldbed = mapfile.with_suffix(".bed")
     map2bed(mapfile, oldbed)
@@ -94,14 +91,11 @@ def main(
             )
 
     newbed = Path(f"{mapfile}.bed")
-    # unlifted = Path(f"{prefix}.unlifted")
     lifted_set, unlifted_set, lb_status = liftBed(
         fin=oldbed,
         fout=newbed,
         chainfile=chainfile,
         liftOverPath=liftOverPath,
-        unlifted_set=unlifted_set,
-        lifted_set=lifted_set,
     )
 
     if lb_status:

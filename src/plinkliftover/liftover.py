@@ -23,7 +23,7 @@ import sys
 from pathlib import Path
 from subprocess import check_output
 
-from plinkliftover.logger import plo_logger as logger
+from .logger import plo_logger as logger
 from rich.console import Console
 from typer import progressbar
 
@@ -36,10 +36,10 @@ def map2bed(fin: Path, fout: Path) -> bool:
         f"Converting [green]MAP[/] file [yellow]{fin.name}[/] file to [green]UCSC BED[/] file [blue]{fout.name}[/]..."
     )
     lines = fin.read_text().split("\n")
-    output = []
+    output = list()
     with progressbar(lines) as map_lines:
-        for ln in map_lines:
-            if len(x := ln.split()) == 4:
+        for line in map_lines:
+            if len(x := line.split()) == 4:
                 chrom, rs, _, pos = x
                 output.append(f"chr{chrom}\t{int(pos)-1}\t{int(pos)}\t{rs}")
             else:
@@ -53,8 +53,6 @@ def liftBed(
     fout: Path,
     chainfile: Path,
     liftOverPath: Path,
-    unlifted_set: Set[str],
-    lifted_set: Set[str],
 ) -> Tuple[Set[str]]:
     console.print(f"Lifting [green]BED[/] file [blue]{fin.name}[/]...")
     params = {
@@ -70,18 +68,14 @@ def liftBed(
     unlifted_lines = Path(params["UNLIFTED"]).read_text().split("\n")
     console.print(f"Processing [red]unlifted[/] {fout.name}.unlifted")
     with progressbar(unlifted_lines) as unlifted:
-        for ln in unlifted:
-            if len(ln) == 0 or ln[0] == "#":
-                continue
-            unlifted_set.add(ln.strip().split()[-1])
+        print("Using new set comprehension for 'unlifted_set'")
+        unlifted_set = {ln.strip().split()[-1] for ln in unlifted if len(ln) > 0 and ln[0] != "#"}
 
     console.print(f"Processing [red]new[/] {fout.name}")
     new_bed_lines = Path(params["NEW"]).read_text().split("\n")
     with progressbar(new_bed_lines) as new_bed:
-        for ln in new_bed:
-            if len(ln) == 0 or ln[0] == "#":
-                continue
-            lifted_set.add(ln.strip().split()[-1])
+        print("Using new set comprehension for 'lifted_set'")
+        lifted_set = {ln.strip().split()[-1] for ln in new_bed if len(ln) != 0 and ln[0] != "#"}
 
     return lifted_set, unlifted_set, True
 
@@ -91,7 +85,7 @@ def bed2map(fin: Path, fout: Path) -> bool:
         f"Converting lifted [green]BED[/] [blue]{fin.name}[/] file back to [green]MAP[/] [yellow]{fout.name}[/]..."
     )
     bed_lines = fin.read_text().split("\n")
-    output = []
+    output = list()
     with progressbar(bed_lines) as lines:
         for ln in lines:
             if len(x := ln.split()) == 4:
@@ -105,7 +99,7 @@ def bed2map(fin: Path, fout: Path) -> bool:
 def liftDat(fin: Path, fout: Path, lifted_set: Set[str]) -> bool:
     console.print(f"Updating [green]DAT[/] file [pink]{fin.name}[/]...")
     lines = fin.read_text().split("\n")
-    output = []
+    output = list()
     with progressbar(lines) as dat_lines:
         for ln in dat_lines:
             if len(ln) == 0 or ln[0] != "M":
@@ -133,12 +127,11 @@ def liftPed(
 
     console.print(f"Updating [green]PED[/] file [orange]{fin.resolve()}[/]...")
     lines = fin.read_text().split("\n")
-    output = []
+    output = list()
     with progressbar(lines) as liftped_lines:
         for ln in liftped_lines:
             if ln.strip() != "":
                 f = ln.strip().split()
-                # l = len(f)
                 f = f[:6] + [
                     f[i * 2] + " " + f[i * 2 + 1] for i in range(3, len(f) // 2)
                 ]
@@ -151,7 +144,6 @@ def liftPed(
                 a = "\t".join(f[:6])
                 b = "\t".join(newmarker)
                 output.append(f"{a}\t{b}\n")
-            # print marker[:10]
     console.print(
         f"Writing new [green]PED[/] data to [light_slate_blue]{fout.resolve()}[/]"
     )

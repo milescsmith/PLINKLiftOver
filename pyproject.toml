@@ -6,7 +6,7 @@ build-backend = "poetry.masonry.api"
 
 [tool.poetry]
 name = "plinkliftover"
-version = "0.1.11"
+version = "0.2.0"
 description = "Converts genotype data stored in plink's PED+MAP format from one genome build to another, using liftOver"
 readme = "README.md"
 authors = [
@@ -32,8 +32,7 @@ classifiers = [  # Update me
 "plinkliftover" = "plinkliftover.__main__:app"
 
 [tool.poetry.dependencies]
-python = "^3.8"
-importlib_metadata = {version = "^3.4.0", python = "<3.8"}
+python = ">=3.8.3,<4.0"
 typer = "^0.4.0"
 rich = "^10.2.1"
 psutil = "^5.8.0"
