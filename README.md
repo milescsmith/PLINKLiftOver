@@ -1,7 +1,5 @@
 # PLINKLiftOver
 
-<div align="justified">
-
 [![Build status](https://github.com/milescsmith/plinkliftover/workflows/build/badge.svg?branch=master&event=push)](https://github.com/milescsmith/plinkliftover/actions?query=workflow%3Abuild)
 [![Python Version](https://img.shields.io/pypi/pyversions/plinkliftover.svg)](https://pypi.org/project/plinkliftover/)
 [![Dependencies Status](https://img.shields.io/badge/dependencies-up%20to%20date-brightgreen.svg)](https://github.com/milescsmith/plinkliftover/pulls?utf8=%E2%9C%93&q=is%3Apr%20author%3Aapp%2Fdependabot)
@@ -17,7 +15,7 @@ to work on genomics files from [PLINK](https://www.cog-genomics.org/plink/),
 allowing one to update the coordinates from one genome reference version to
 another.
 
-</div>
+
 ## Installation
 
 PLINKLiftOver requires
