@@ -26,11 +26,12 @@ installed and on the system path
 * The [MAP file](https://zzz.bwh.harvard.edu/plink/data.shtml) from a PLINK
 dataset
 
+Install from [pypi](https://pypi.org/project/plinkliftover/)
 ```bash
 pip install -U plinkliftover
 ```
 
-or install with the development version with
+or install the development version with
 
 ```bash
 pip install -U git+https://github.com/milescsmith/plinkliftover.git
@@ -64,7 +65,7 @@ Options:
 For example
 
 ```bash
-plinkliftover updating.map hg19ToHg38.over.chain.gz
+plinkliftover updating.map hg19ToHg38.over.chain.gz --prefix updated
 ```
 
 ### Note!
