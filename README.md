@@ -39,10 +39,24 @@ pip install -U git+https://github.com/milescsmith/plinkliftover.git
 
 ## Usage
 
-```bash
-Usage: plinkliftover [OPTIONS] MAPFILE CHAINFILE
+plinkliftover has three subcommands:
+* liftover: Fully convert the genomic coordinates from one version to another 
+in a PLINK file
+* map2bed: Convert a PLINK MAP file to a BED file
+* bed2map: Convert a BED file to a MAP file
 
-  Converts genotype data stored in plink's PED+MAP format from one genome
+The latter two subcommands are most useful in situations where it is not 
+possible to run the liftOver executable locally (i.e. you are on Windows) but 
+can use [UCSC's online version](https://genome.ucsc.edu/cgi-bin/hgLiftOver) 
+or you otherwise need/want a BED file.
+
+
+### liftover:
+
+```bash
+Usage: plinkliftover liftover [OPTIONS] MAPFILE CHAINFILE
+
+  Converts genotype data stored in the PLINK PED+MAP format from one genome
   build to another, using liftOver.
 
 Arguments:
@@ -65,7 +79,45 @@ Options:
 For example
 
 ```bash
-plinkliftover updating.map hg19ToHg38.over.chain.gz --prefix updated
+plinkliftover liftover updating.map hg19ToHg38.over.chain.gz --prefix updated
+```
+
+### map2bed:
+
+```bash
+Usage: plinkliftover map2bed [OPTIONS] MAPFILE
+
+  Convert genotype data stored in a PLINK MAP file into a BED file, allowing
+  one to use the online version of liftOver should the local executable is
+  unavailable
+
+Arguments:
+  MAPFILE  A PLINK MAP file.  [required]
+
+Options:
+  -o, --output PATH  Location to save BED file to.  If one is not provided,
+                     then it will be saved to where the MAP file is.
+  -v, --version      Prints the version of the plinkliftover package.
+  --help             Show this message and exit.
+```
+
+### bed2map:
+
+```bash
+Usage: plinkliftover bed2map [OPTIONS] BEDFILE
+
+  Convert genotype data stored in a PLINK MAP file into a BED file, allowing
+  one to use the online version of liftOver should the local executable is
+  unavailable
+
+Arguments:
+  BEDFILE  A BED file.  [required]
+
+Options:
+  -o, --output PATH  Location to save MAP file to.  If one is not provided,
+                     then it will be saved to where the BED file is.
+  -v, --version      Prints the version of the plinkliftover package.
+  --help             Show this message and exit.
 ```
 
 ### Note!

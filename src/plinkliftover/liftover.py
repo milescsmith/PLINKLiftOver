@@ -23,29 +23,10 @@ import sys
 from pathlib import Path
 from subprocess import check_output
 
-from .logger import plo_logger as logger
-from rich.console import Console
 from typer import progressbar
 
-console = Console()
-
-
-def map2bed(fin: Path, fout: Path) -> bool:
-    logger.info(f"fin: {fin}, fout: {fout}")
-    console.print(
-        f"Converting [green]MAP[/] file [yellow]{fin.name}[/] file to [green]UCSC BED[/] file [blue]{fout.name}[/]..."
-    )
-    lines = fin.read_text().split("\n")
-    output = list()
-    with progressbar(lines) as map_lines:
-        for line in map_lines:
-            if len(x := line.split()) == 4:
-                chrom, rs, _, pos = x
-                output.append(f"chr{chrom}\t{int(pos)-1}\t{int(pos)}\t{rs}")
-            else:
-                pass
-    fout.write_text("\n".join(output))
-    return True
+from . import console
+from .logger import plo_logger as logger
 
 
 def liftBed(
@@ -68,32 +49,22 @@ def liftBed(
     unlifted_lines = Path(params["UNLIFTED"]).read_text().split("\n")
     console.print(f"Processing [red]unlifted[/] {fout.name}.unlifted")
     with progressbar(unlifted_lines) as unlifted:
-        print("Using new set comprehension for 'unlifted_set'")
-        unlifted_set = {ln.strip().split()[-1] for ln in unlifted if len(ln) > 0 and ln[0] != "#"}
+        unlifted_set = {
+            ln.strip().split()[-1]
+            for ln in unlifted
+            if len(ln) > 0 and ln[0] != "#"
+        }
 
     console.print(f"Processing [red]new[/] {fout.name}")
     new_bed_lines = Path(params["NEW"]).read_text().split("\n")
     with progressbar(new_bed_lines) as new_bed:
-        print("Using new set comprehension for 'lifted_set'")
-        lifted_set = {ln.strip().split()[-1] for ln in new_bed if len(ln) != 0 and ln[0] != "#"}
+        lifted_set = {
+            ln.strip().split()[-1]
+            for ln in new_bed
+            if len(ln) != 0 and ln[0] != "#"
+        }
 
     return lifted_set, unlifted_set, True
-
-
-def bed2map(fin: Path, fout: Path) -> bool:
-    console.print(
-        f"Converting lifted [green]BED[/] [blue]{fin.name}[/] file back to [green]MAP[/] [yellow]{fout.name}[/]..."
-    )
-    bed_lines = fin.read_text().split("\n")
-    output = list()
-    with progressbar(bed_lines) as lines:
-        for ln in lines:
-            if len(x := ln.split()) == 4:
-                chrom, _, pos1, rs = x
-                chrom = chrom.replace("chr", "")
-                output.append(f"{chrom}\t{rs}\t0.0\t{pos1}")
-    fout.write_text("\n".join(output))
-    return True
 
 
 def liftDat(fin: Path, fout: Path, lifted_set: Set[str]) -> bool:

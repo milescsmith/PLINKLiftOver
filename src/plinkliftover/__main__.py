@@ -5,30 +5,16 @@ from distutils.spawn import find_executable
 from pathlib import Path
 
 import typer
-from . import __version__
-from .liftover import bed2map, liftBed, liftDat, liftPed, map2bed
+
+from . import __version__, app, console, version_callback
+from .bed2map import bed2map
+from .liftover import liftBed, liftDat, liftPed
 from .logger import plo_logger as logger
-from rich.console import Console
-
-app = typer.Typer(
-    name="plinkliftover",
-    help="Converts genotype data stored in plink's PED+MAP format from one genome build to another, using liftOver",
-    add_completion=False,
-)
-console = Console()
-
-
-def version_callback(value: bool):
-    """Prints the version of the package."""
-    if value:
-        console.print(
-            f"[yellow]plinkliftover[/] version: [bold blue]{__version__}[/]"
-        )
-        raise typer.Exit()
+from .map2bed import map2bed
 
 
 @app.command(name="")
-def main(
+def liftover(
     mapfile: str = typer.Argument(
         ..., help="The plink MAP file to `liftOver`."
     ),
