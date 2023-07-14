@@ -1,29 +1,26 @@
-from typing import Optional
-
 from pathlib import Path
+from typing import Annotated, Optional
 
 import typer
+from loguru import logger
 
-from . import app, console, version_callback
-from .logger import plo_logger as logger
+from plinkliftover import app, console, verbosity_level, version_callback
+from plinkliftover.logger import init_logger
 
-# bed2mapapp = typer.Typer(
-#     name="bed2map",
-#     help="Converts BED files to PLINK MAP format",
-#     add_completion=False,
-# )
+BED_LINES_LENGTH: int = 4
 
 
 def bed2map(fin: Path, fout: Path) -> bool:
+    init_logger(verbosity_level)
     logger.info(f"fin: {fin}, fout: {fout}")
     console.print(
         f"Converting lifted [green]BED[/] [blue]{fin.name}[/] file back to [green]MAP[/] [yellow]{fout.name}[/]..."
     )
     lines = fin.read_text().split("\n")
-    output = list()
+    output = []
     with typer.progressbar(lines) as bed_lines:
         for line in bed_lines:
-            if len(x := line.split()) == 4:
+            if len(x := line.split()) == BED_LINES_LENGTH:
                 chrom, _, pos1, rs = x
                 chrom = chrom.replace("chr", "")
                 output.append(f"{chrom}\t{rs}\t0.0\t{pos1}")
@@ -33,23 +30,29 @@ def bed2map(fin: Path, fout: Path) -> bool:
 
 @app.command(name="bed2map")
 def bed2mapapp(
-    bedfile: Path = typer.Argument(..., help="A BED file."),
-    output: Optional[Path] = typer.Option(
-        None,
-        "-o",
-        "--output",
-        help=f"Location to save MAP file to.  If one is not provided, "
-        f"then it will be saved to where the BED file is.",
-        show_default=True,
-    ),
-    version: bool = typer.Option(
-        None,
-        "-v",
-        "--version",
-        callback=version_callback,
-        is_eager=True,
-        help="Prints the version of the plinkliftover package.",
-    ),
+    bedfile: Annotated[Path, typer.Argument(help="A BED file.")],
+    output: Annotated[
+        Optional[Path],  # noqa UP007
+        typer.Option(
+            "-o",
+            "--output",
+            help=(
+                "Location to save MAP file to.  If one is not provided, "
+                "then it will be saved to where the BED file is."
+            ),
+            show_default=True,
+        ),
+    ] = None,
+    version: Annotated[  # noqa ARG001
+        Optional[bool],  # noqa UP007
+        typer.Option(
+            "-v",
+            "--version",
+            callback=version_callback,
+            is_eager=True,
+            help="Prints the version of the plinkliftover package.",
+        ),
+    ] = None,
 ) -> None:
     """Convert genotype data stored in a PLINK MAP file into a BED file,
     allowing one to use the online version of liftOver should the local
