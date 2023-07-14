@@ -14,98 +14,85 @@ Modified by Scott Ritchie:
  - to generally be slightly more PEP compliant.
 
 Modified by Miles Smith:
- - Update to work with python >=3.7
+ - Update to work with python >= 3.10
 """
-
-from typing import Set, Tuple
 
 import sys
 from pathlib import Path
 from subprocess import check_output
 
+from loguru import logger
 from typer import progressbar
 
-from . import console
-from .logger import plo_logger as logger
+from plinkliftover import console
+
+DAT_LINE_LENGTH: int = 2
 
 
-def liftBed(
+def lift_bed(
     fin: Path,
     fout: Path,
     chainfile: Path,
-    liftOverPath: Path,
-) -> Tuple[Set[str]]:
+    lift_over_path: Path,
+) -> tuple[set[str], set[str], bool]:
     console.print(f"Lifting [green]BED[/] file [blue]{fin.name}[/]...")
-    params = {
-        "LIFTOVER_BIN": liftOverPath.resolve(),
+    params: dict[str, str | Path] = {
+        "LIFTOVER_BIN": lift_over_path.resolve(),
         "OLD": fin,
         "CHAIN": chainfile,
         "NEW": fout,
         "UNLIFTED": f"{fout}.unlifted",
     }
 
-    check_output(params.values())
+    check_output([str(params[_]) for _ in params])  # noqa: S603
     # record lifted/unliftd rs
     unlifted_lines = Path(params["UNLIFTED"]).read_text().split("\n")
     console.print(f"Processing [red]unlifted[/] {fout.name}.unlifted")
     with progressbar(unlifted_lines) as unlifted:
-        unlifted_set = {
-            ln.strip().split()[-1]
-            for ln in unlifted
-            if len(ln) > 0 and ln[0] != "#"
-        }
+        unlifted_set = {ln.strip().split()[-1] for ln in unlifted if len(ln) > 0 and ln[0] != "#"}
 
     console.print(f"Processing [red]new[/] {fout.name}")
     new_bed_lines = Path(params["NEW"]).read_text().split("\n")
     with progressbar(new_bed_lines) as new_bed:
-        lifted_set = {
-            ln.strip().split()[-1]
-            for ln in new_bed
-            if len(ln) != 0 and ln[0] != "#"
-        }
+        lifted_set = {ln.strip().split()[-1] for ln in new_bed if len(ln) != 0 and ln[0] != "#"}
 
     return lifted_set, unlifted_set, True
 
 
-def liftDat(fin: Path, fout: Path, lifted_set: Set[str]) -> bool:
+def lift_dat(fin: Path, fout: Path, lifted_set: set[str]) -> bool:
     console.print(f"Updating [green]DAT[/] file [pink]{fin.name}[/]...")
     lines = fin.read_text().split("\n")
-    output = list()
+    output = []
     with progressbar(lines) as dat_lines:
         for ln in dat_lines:
             if len(ln) == 0 or ln[0] != "M":
                 output.append(ln)
-            else:
-                if len(thing := ln.strip().split()) == 2:
-                    _, rs = thing
-                    if rs in lifted_set:
-                        output.append(ln)
+            elif len(thing := ln.strip().split()) == DAT_LINE_LENGTH:
+                _, rs = thing
+                if rs in lifted_set:
+                    output.append(ln)
     console.print(f"Writing [green]new DAT[/] file [pink]{fout.name}[/]...")
 
     return True
 
 
-def liftPed(
-    fin: Path, fout: Path, fOldMap: Path, unlifted_set: Set[str]
-) -> bool:
+def lift_ped(fin: Path, fout: Path, foldmap: Path, unlifted_set: set[str]) -> bool:
     # two ways to do it:
     # 1. write unlifted snp list
     #    use PLINK to do this job using --exclude
     # 2. alternatively, we can write our own method
     # we will use method 2
-    marker = [i.strip().split()[1] for i in open(fOldMap)]
+    marker = [i.strip().split()[1] for i in open(foldmap)]
     flag = [(x not in unlifted_set) for x in marker]
 
     console.print(f"Updating [green]PED[/] file [orange]{fin.resolve()}[/]...")
     lines = fin.read_text().split("\n")
-    output = list()
+    output = []
     with progressbar(lines) as liftped_lines:
         for ln in liftped_lines:
             if ln.strip() != "":
                 f = ln.strip().split()
-                f = f[:6] + [
-                    f[i * 2] + " " + f[i * 2 + 1] for i in range(3, len(f) // 2)
-                ]
+                f = f[:6] + [f"{f[i * 2]} {f[i * 2 + 1]}" for i in range(3, len(f) // 2)]
                 if len(f[6:]) != len(flag):
                     logger.error("Inconsistent length of ped and map files")
                     logger.error(f"{len(f[6:])} vs {len(flag)}")
@@ -115,9 +102,7 @@ def liftPed(
                 a = "\t".join(f[:6])
                 b = "\t".join(newmarker)
                 output.append(f"{a}\t{b}\n")
-    console.print(
-        f"Writing new [green]PED[/] data to [light_slate_blue]{fout.resolve()}[/]"
-    )
+    console.print(f"Writing new [green]PED[/] data to [light_slate_blue]{fout.resolve()}[/]")
     with open(fout, "w") as fo:
         fo.writelines(output)
     return True

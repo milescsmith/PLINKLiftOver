@@ -19,7 +19,7 @@ another.
 ## Installation
 
 PLINKLiftOver requires
-* Python 3.8 
+* Python 3.10
 * The command line version of [liftOver](http://genome.ucsc.edu/cgi-bin/hgLiftOver),
 installed and on the system path
 * An appropriate [chain file](http://hgdownload.soe.ucsc.edu/downloads.html#liftover)
