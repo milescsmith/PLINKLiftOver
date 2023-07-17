@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+** [0.4.2] - 2023-07-17
+
+*** Fix
+
+- Minimum python version
+- running `plinkliftover` with no arguments now shows the help
+
+
+** [0.4.1]
+
+*** Added
+
+- Updated gitignore
+
+
 ## [0.4.0] - 2023-07-13
 
 ### Change
@@ -81,6 +96,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - replace `set` and `tuple` in type hints with their `typing.Set` and `typing.Tuple` counterparts
 
+[0.4.2]: https://github.com/milescsmith/PLINKLiftOver/compare/0.4.1...0.4.2
+[0.4.1]: https://github.com/milescsmith/PLINKLiftOver/compare/0.4.0...0.4.1
+[0.4.0]: https://github.com/milescsmith/PLINKLiftOver/compare/0.3.0...0.4.0
+[0.3.0]: https://github.com/milescsmith/PLINKLiftOver/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/milescsmith/PLINKLiftOver/compare/0.1.11...0.2.0
 [0.1.11]: https://github.com/milescsmith/PLINKLiftOver/compare/0.1.10...0.1.11
 [0.1.10]: https://github.com/milescsmith/PLINKLiftOver/compare/0.1.9...0.1.10

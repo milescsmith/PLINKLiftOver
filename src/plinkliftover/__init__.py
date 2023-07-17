@@ -22,6 +22,7 @@ app = typer.Typer(
     name="plinkliftover",
     help="Converts genotype data stored in plink's PED+MAP format from one genome build to another, using liftOver",
     add_completion=False,
+    no_args_is_help=True
 )
 
 verbosity_level = 0
