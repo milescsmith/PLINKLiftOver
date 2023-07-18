@@ -17,17 +17,15 @@ Modified by Miles Smith:
  - Update to work with python >= 3.10
 """
 
-import sys
+from multiprocessing import cpu_count
 from pathlib import Path
 from subprocess import check_output
 
+from joblib import Parallel, delayed
 from loguru import logger
 from tqdm.rich import tqdm
-from joblib import delayed
-from multiprocessing import cpu_count
 
 from plinkliftover import console
-from plinkliftover.utils import ProgressParallel
 
 DAT_LINE_LENGTH: int = 2
 
@@ -51,12 +49,12 @@ def lift_bed(
     # record lifted/unliftd rs
     unlifted_lines = Path(params["UNLIFTED"]).read_text().split("\n")
     console.print(f"Processing [red]unlifted[/] {fout.name}.unlifted")
-    
+
     unlifted_set = {ln.strip().split()[-1] for ln in tqdm(unlifted_lines) if len(ln) > 0 and ln[0] != "#"}
 
     console.print(f"Processing [red]new[/] {fout.name}")
     new_bed_lines = Path(params["NEW"]).read_text().split("\n")
-    
+
     lifted_set = {ln.strip().split()[-1] for ln in tqdm(new_bed_lines) if len(ln) != 0 and ln[0] != "#"}
 
     return lifted_set, unlifted_set, True
@@ -67,9 +65,9 @@ def lift_dat(fin: Path, fout: Path, lifted_set: set[str]) -> bool:
     dat_lines = fin.read_text().split("\n")
     output = []
     # TODO: parallellize this
-    parallel = ProgressParallel(n_jobs=cpu_count(), return_as="list", total=len(dat_lines))
-    output = parallel(delayed(lift_dat_loop)(line, lifted_set) for line in dat_lines)
-    
+    parallel = Parallel(n_jobs=cpu_count(), return_as="generator")
+    output = parallel(delayed(lift_dat_loop)(line, lifted_set) for line in tqdm(dat_lines))
+
     console.print(f"Writing [green]new DAT[/] file [pink]{fout.name}[/]...")
     with fout.open("w") as lines_out:
         lines_out.writelines(filter(None, output))
@@ -99,11 +97,15 @@ def lift_ped(fin: Path, fout: Path, foldmap: Path, unlifted_set: set[str]) -> bo
     flags = [(x not in unlifted_set) for x in marker]
 
     console.print(f"Updating [green]PED[/] file [orange]{fin.resolve()}[/]...")
-    liftped_lines = fin.read
+    lines = fin.read_text().split("\n")
     # TODO: parallelize
-    parallel = ProgressParallel(n_jobs=cpu_count(), return_as="list", total=len(liftped_lines))
-    output = parallel(delayed(lift_ped_loop)(x, flag) for line, flag in zip(liftped_lines, flags, strict=True) if (x := line.strip() != ""))
-    
+    parallel = Parallel(n_jobs=cpu_count(), return_as="generator")
+    output = parallel(
+        delayed(lift_ped_loop)(x, flag)
+        for line, flag in tqdm(zip(lines, flags, strict=True))
+        if (x := line.strip() != "")
+    )
+
     console.print(f"Writing new [green]PED[/] data to [light_slate_blue]{fout.resolve()}[/]")
     with open(fout, "a") as fo:
         fo.writelines(output)
@@ -121,4 +123,4 @@ def lift_ped_loop(line: str, flag: bool) -> str:
 
     a = "\t".join(f[:6])
     b = "\t".join(newmarker)
-    return(f"{a}\t{b}\n")
+    return f"{a}\t{b}\n"

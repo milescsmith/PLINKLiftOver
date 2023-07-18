@@ -1,14 +1,14 @@
+from multiprocessing import cpu_count
 from pathlib import Path
 from typing import Annotated, Optional
 
 import typer
+from joblib import Parallel, delayed
 from loguru import logger
+from tqdm.rich import tqdm
 
 from plinkliftover import app, console, verbosity_level, version_callback
 from plinkliftover.logger import init_logger
-from plinkliftover.utils import ProgressParallel
-from joblib import delayed
-from multiprocessing import cpu_count
 
 MAP_LINE_LENGTH: int = 4
 
@@ -20,12 +20,13 @@ def map2bed(fin: Path, fout: Path) -> bool:
     )
     init_logger(verbosity_level)
     lines = fin.read_text().split("\n")
-    parallel = ProgressParallel(n_jobs=cpu_count(), return_as="list", total=len(lines))
-    output = parallel(delayed(maplinesplit)(x) for line in lines if len((x := line.split())) == MAP_LINE_LENGTH)
-    
+    parallel = Parallel(n_jobs=cpu_count(), return_as="generator")
+    output = parallel(delayed(maplinesplit)(x) for line in tqdm(lines) if len(x := line.split()) == MAP_LINE_LENGTH)
+
     with fout.open("w") as lines_out:
         lines_out.writelines(output)
     return True
+
 
 def maplinesplit(line: str) -> str:
     chrom, rs, _, pos = line

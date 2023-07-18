@@ -1,14 +1,14 @@
+from multiprocessing import cpu_count
 from pathlib import Path
 from typing import Annotated, Optional
-from joblib import delayed
-from multiprocessing import cpu_count
 
 import typer
+from joblib import Parallel, delayed
 from loguru import logger
+from tqdm.rich import tqdm
 
 from plinkliftover import app, console, verbosity_level, version_callback
 from plinkliftover.logger import init_logger
-from plinkliftover.utils import ProgressParallel
 
 BED_LINES_LENGTH: int = 4
 
@@ -20,9 +20,10 @@ def bed2map(fin: Path, fout: Path) -> bool:
         f"Converting lifted [green]BED[/] [blue]{fin.name}[/] file back to [green]MAP[/] [yellow]{fout.name}[/]..."
     )
     lines = fin.read_text().split("\n")
-    parallel = ProgressParallel(n_jobs=cpu_count(), return_as="list", total=len(lines))
-    output = parallel(delayed(bedlinesplit)(x) for line in lines if len((x := line.split())) == BED_LINES_LENGTH)
-    
+
+    parallel = Parallel(n_jobs=cpu_count(), return_as="generator")
+    output = parallel(delayed(bedlinesplit)(x) for line in tqdm(lines) if len(x := line.split()) == BED_LINES_LENGTH)
+
     with fout.open("w") as lines_out:
         lines_out.writelines(output)
     return True
