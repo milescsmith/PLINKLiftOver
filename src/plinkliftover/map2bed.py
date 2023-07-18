@@ -6,6 +6,9 @@ from loguru import logger
 
 from plinkliftover import app, console, verbosity_level, version_callback
 from plinkliftover.logger import init_logger
+from plinkliftover.utils import ProgressParallel
+from joblib import delayed
+from multiprocessing import cpu_count
 
 MAP_LINE_LENGTH: int = 4
 
@@ -17,17 +20,19 @@ def map2bed(fin: Path, fout: Path) -> bool:
     )
     init_logger(verbosity_level)
     lines = fin.read_text().split("\n")
-    output = []
-    with typer.progressbar(lines) as map_lines:
-        for line in map_lines:
-            if len(x := line.split()) == MAP_LINE_LENGTH:
-                chrom, rs, _, pos = x
-                output.append(f"chr{chrom}\t{int(pos)-1}\t{int(pos)}\t{rs}")
-    fout.write_text("\n".join(output))
+    parallel = ProgressParallel(n_jobs=cpu_count(), return_as="list", total=len(lines))
+    output = parallel(delayed(maplinesplit)(x) for line in lines if len((x := line.split())) == MAP_LINE_LENGTH)
+    
+    with fout.open("w") as lines_out:
+        lines_out.writelines(output)
     return True
 
+def maplinesplit(line: str) -> str:
+    chrom, rs, _, pos = line
+    return f"chr{chrom}\t{int(pos)-1}\t{int(pos)}\t{rs}\n"
 
-@app.command(name="map2bed")
+
+@app.command(name="map2bed", no_args_is_help=True)
 def map2bedapp(
     mapfile: Annotated[Path, typer.Argument(help="A PLINK MAP file.")],
     output: Annotated[

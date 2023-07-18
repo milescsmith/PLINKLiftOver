@@ -12,7 +12,7 @@ from plinkliftover.logger import init_logger
 from plinkliftover.map2bed import map2bed
 
 
-@app.command(name="liftover")
+@app.command(name="liftover", no_args_is_help=True)
 def liftover(
     mapfile: Annotated[
         Path,
