@@ -2,8 +2,15 @@
 `plinkliftover` Converts genotype data stored in plink's PED+MAP
 format from one genome build to another, using liftOver
 """
+import warnings
 from importlib.metadata import PackageNotFoundError, version
+from os import environ
 from typing import Annotated
+
+import better_exceptions
+from tqdm import TqdmExperimentalWarning
+
+warnings.filterwarnings("ignore", category=TqdmExperimentalWarning)
 
 from loguru import logger
 
@@ -15,14 +22,15 @@ except PackageNotFoundError:  # pragma: no cover
 import typer
 from rich.console import Console
 
+environ["BETTER_EXCEPTIONS"] = "1"
 console = Console()
 logger.disable("readcounts")
 
 app = typer.Typer(
     name="plinkliftover",
     help="Converts genotype data stored in plink's PED+MAP format from one genome build to another, using liftOver",
-    add_completion=False,
-    no_args_is_help=True
+    add_completion=True,
+    no_args_is_help=True,
 )
 
 verbosity_level = 0

@@ -1,8 +1,11 @@
+from multiprocessing import cpu_count
 from pathlib import Path
 from typing import Annotated, Optional
 
 import typer
+from joblib import Parallel, delayed
 from loguru import logger
+from tqdm.rich import tqdm
 
 from plinkliftover import app, console, verbosity_level, version_callback
 from plinkliftover.logger import init_logger
@@ -17,18 +20,22 @@ def bed2map(fin: Path, fout: Path) -> bool:
         f"Converting lifted [green]BED[/] [blue]{fin.name}[/] file back to [green]MAP[/] [yellow]{fout.name}[/]..."
     )
     lines = fin.read_text().split("\n")
-    output = []
-    with typer.progressbar(lines) as bed_lines:
-        for line in bed_lines:
-            if len(x := line.split()) == BED_LINES_LENGTH:
-                chrom, _, pos1, rs = x
-                chrom = chrom.replace("chr", "")
-                output.append(f"{chrom}\t{rs}\t0.0\t{pos1}")
-    fout.write_text("\n".join(output))
+
+    parallel = Parallel(n_jobs=cpu_count(), return_as="generator")
+    output = parallel(delayed(bedlinesplit)(x) for line in tqdm(lines) if len(x := line.split()) == BED_LINES_LENGTH)
+
+    with fout.open("w") as lines_out:
+        lines_out.writelines(output)
     return True
 
 
-@app.command(name="bed2map")
+def bedlinesplit(line: str) -> str:
+    chrom, _, pos1, rs = line
+    chrom = chrom.replace("chr", "")
+    return f"{chrom}\t{rs}\t0.0\t{pos1}\n"
+
+
+@app.command(name="bed2map", no_args_is_help=True)
 def bed2mapapp(
     bedfile: Annotated[Path, typer.Argument(help="A BED file.")],
     output: Annotated[

@@ -1,8 +1,11 @@
+from multiprocessing import cpu_count
 from pathlib import Path
 from typing import Annotated, Optional
 
 import typer
+from joblib import Parallel, delayed
 from loguru import logger
+from tqdm.rich import tqdm
 
 from plinkliftover import app, console, verbosity_level, version_callback
 from plinkliftover.logger import init_logger
@@ -17,17 +20,20 @@ def map2bed(fin: Path, fout: Path) -> bool:
     )
     init_logger(verbosity_level)
     lines = fin.read_text().split("\n")
-    output = []
-    with typer.progressbar(lines) as map_lines:
-        for line in map_lines:
-            if len(x := line.split()) == MAP_LINE_LENGTH:
-                chrom, rs, _, pos = x
-                output.append(f"chr{chrom}\t{int(pos)-1}\t{int(pos)}\t{rs}")
-    fout.write_text("\n".join(output))
+    parallel = Parallel(n_jobs=cpu_count(), return_as="generator")
+    output = parallel(delayed(maplinesplit)(x) for line in tqdm(lines) if len(x := line.split()) == MAP_LINE_LENGTH)
+
+    with fout.open("w") as lines_out:
+        lines_out.writelines(output)
     return True
 
 
-@app.command(name="map2bed")
+def maplinesplit(line: str) -> str:
+    chrom, rs, _, pos = line
+    return f"chr{chrom}\t{int(pos)-1}\t{int(pos)}\t{rs}\n"
+
+
+@app.command(name="map2bed", no_args_is_help=True)
 def map2bedapp(
     mapfile: Annotated[Path, typer.Argument(help="A PLINK MAP file.")],
     output: Annotated[
