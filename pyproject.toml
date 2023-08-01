@@ -58,7 +58,7 @@ dev = [
     "safety ==2.3.4",
     "twine ==4.0.2",
     "build ==0.10.0",
-    "ruff ==0.0.278",
+    "ruff ==0.0.282",
 ]
 
 [tool.isort]
