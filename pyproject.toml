@@ -17,7 +17,7 @@ classifiers = [
 ]
 dependencies = [
     "psutil ==5.9.5",
-    "rich ==13.4.2",
+    "rich ==13.5.2",
     "typer ==0.9.0",
     "loguru ==0.7.0",
     "joblib ==1.3.1",
