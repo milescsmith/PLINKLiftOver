@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "plinkliftover"
-version = "0.5.1"
+version = "0.5.2"
 description = "Converts genotype data stored in plink's PED+MAP format from one genome build to another, using liftOver"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -16,13 +16,13 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-    "psutil ==5.9.5",
-    "rich ==13.4.2",
-    "typer ==0.9.0",
-    "loguru ==0.7.0",
-    "joblib ==1.3.1",
     "better_exceptions",
+    "joblib ==1.3.1",
+    "loguru ==0.7.0",
+    "psutil ==5.9.5",
+    "rich ==13.5.2",
     "tqdm ==4.65.0",
+    "typer ==0.9.0",
 ]
 
 [[project.authors]]
@@ -40,24 +40,10 @@ bed2map = "plinkliftover.bed2map:bed2mapapp"
 
 [project.optional-dependencies]
 dev = [
-    "bandit ==1.7.5",
     "black ==23.7.0",
-    "darglint ==1.8.1",
-    "flakehell ==0.9.0",
-    "isort ==5.12.0",
-    "jupyterlab ==4.0.5",
-    "mypy ==1.4.1",
+    "mypy ==1.5.1",
     "nox ==2023.4.22",
-    "pre-commit ==3.3.3",
-    "pycodestyle ==2.10.0",
-    "pydocstyle ==6.3.0",
-    "pyflakes ==3.0.1",
-    "pylint ==2.17.4",
     "pytest ==7.4.0",
-    "pyupgrade ==3.9.0",
-    "safety ==2.3.4",
-    "twine ==4.0.2",
-    "build ==0.10.0",
     "ruff ==0.0.287",
 ]
 

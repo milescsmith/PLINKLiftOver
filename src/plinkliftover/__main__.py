@@ -51,7 +51,7 @@ def liftover(
             is_eager=True,
             help="Prints the version of the plinkliftover package.",
         ),
-    ] = False,  # noqa FBT002
+    ] = False,  # FBT002
 ) -> None:
     """Converts genotype data stored in plink's PED+MAP format from one genome
     build to another, using liftOver.

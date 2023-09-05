@@ -57,7 +57,7 @@ def map2bedapp(
             is_eager=True,
             help="Prints the version of the plinkliftover package.",
         ),
-    ] = False,  # noqa FBT007
+    ] = False,  # FBT007
 ) -> None:
     """Convert genotype data stored in a PLINK MAP file into a BED file,
     allowing one to use the online version of liftOver should the local

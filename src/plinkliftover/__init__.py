@@ -4,25 +4,22 @@ format from one genome build to another, using liftOver
 """
 import warnings
 from importlib.metadata import PackageNotFoundError, version
-from os import environ
 from typing import Annotated
 
 import better_exceptions
+import typer
+from loguru import logger
+from rich.console import Console
 from tqdm import TqdmExperimentalWarning
 
+better_exceptions.hook()
 warnings.filterwarnings("ignore", category=TqdmExperimentalWarning)
-
-from loguru import logger
 
 try:
     __version__ = version(__name__)
 except PackageNotFoundError:  # pragma: no cover
     __version__ = "unknown"
 
-import typer
-from rich.console import Console
-
-environ["BETTER_EXCEPTIONS"] = "1"
 console = Console()
 logger.disable("readcounts")
 
