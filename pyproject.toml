@@ -41,7 +41,7 @@ bed2map = "plinkliftover.bed2map:bed2mapapp"
 [project.optional-dependencies]
 dev = [
     "black ==23.7.0",
-    "mypy ==1.5.1",
+    "mypy ==1.17.0",
     "nox ==2023.4.22",
     "pytest ==7.4.0",
     "ruff ==0.0.287",
