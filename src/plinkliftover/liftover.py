@@ -115,10 +115,10 @@ def lift_ped(fin: Path, fout: Path, foldmap: Path, unlifted_set: set[str]) -> bo
 def lift_ped_loop(line: str, flag: bool) -> str:
     f = line.strip().split()
     f = f[:6] + [f"{f[i * 2]} {f[i * 2 + 1]}" for i in range(3, len(f) // 2)]
-    if len(f[6:]) != len(flag):
-        msg = f"Inconsistent length of ped and map files - {len(f[6:])} vs {len(flag)}"
-        logger.error(msg)
-        raise ValueError(msg)
+    # if len(f[6:]) != len(flag):
+    #     msg = f"Inconsistent length of ped and map files - {len(f[6:])} vs {len(flag)}"
+    #     logger.error(msg)
+    #     raise ValueError(msg)
     newmarker = [m for m in f[6:] if flag]
 
     a = "\t".join(f[:6])

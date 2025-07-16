@@ -44,13 +44,12 @@ def bed2mapapp(
             "-o",
             "--output",
             help=(
-                "Location to save MAP file to.  If one is not provided, "
-                "then it will be saved to where the BED file is."
+                "Location to save MAP file to.  If one is not provided, then it will be saved to where the BED file is."
             ),
             show_default=True,
         ),
     ] = None,
-    version: Annotated[  # noqa ARG001
+    version: Annotated[
         Optional[bool],  # noqa UP007
         typer.Option(
             "-v",

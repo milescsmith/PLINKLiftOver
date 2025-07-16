@@ -30,7 +30,7 @@ def map2bed(fin: Path, fout: Path) -> bool:
 
 def maplinesplit(line: str) -> str:
     chrom, rs, _, pos = line
-    return f"chr{chrom}\t{int(pos)-1}\t{int(pos)}\t{rs}\n"
+    return f"chr{chrom}\t{int(pos) - 1}\t{int(pos)}\t{rs}\n"
 
 
 @app.command(name="map2bed", no_args_is_help=True)
@@ -42,13 +42,12 @@ def map2bedapp(
             "-o",
             "--output",
             help=(
-                "Location to save BED file to.  If one is not provided, "
-                "then it will be saved to where the MAP file is."
+                "Location to save BED file to.  If one is not provided, then it will be saved to where the MAP file is."
             ),
             show_default=True,
         ),
     ] = None,
-    version: Annotated[  # noqa ARG001
+    version: Annotated[
         bool,
         typer.Option(
             "-v",

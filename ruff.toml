@@ -1,0 +1,93 @@
+line-length = 120
+target-version = "py312"
+
+[lint]
+select = [
+    "A",
+    "ARG",
+    "B",
+    "C",
+    "DTZ",
+    "E",
+    "EM",
+    "F",
+    "FBT",
+    "I",
+    "I001",
+    "ICN",
+    "ISC",
+    "N",
+    "PLC",
+    "PLE",
+    "PLR",
+    "PLW",
+    "Q",
+    "RUF",
+    "S",
+    "T",
+    "TID",
+    "UP",
+    "W",
+    "YTT",
+]
+ignore = [
+    "B027",
+    "C901",
+    "D100",
+    "D103",
+    "D205",
+    "D212",
+    "D415",
+    "E203",
+    "E501",
+    "FBT001",
+    "FBT002",
+    "FBT003",
+    "ISC001",
+    "N802",
+    "N803",
+    "PLR0911",
+    "PLR0912",
+    "PLR0913",
+    "PLR0915",
+    "S105",
+    "S106",
+    "S107",
+    "ARG001",
+    "UP007",
+]
+unfixable = [
+    "F401",
+    "UP007",
+]
+exclude = [
+    ".git",
+    ".hg",
+    "__pycache__",
+    "_bin/*",
+    "_build/*",
+    "_ig_fbcode_wheel/*",
+    "buck-out/*",
+    "third-party-buck/*",
+    "third-party2/*",
+    "dist",
+    ".venv",
+    ".nox",
+    ".mypy_cache",
+    ".pytype",
+    ".svn",
+    "__pypackages__",
+]
+
+[format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Like Black, respect magic trailing commas.
+skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"

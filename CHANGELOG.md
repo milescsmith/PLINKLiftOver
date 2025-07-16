@@ -5,24 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-** [0.5.2] - 2023-09-05
+## [0.6.0] - 2025-07-16
 
-*** Change
+### Change
+- Update all dependencies so dependbot will stop screaming at me
+  - Removed `better_exceptions` (it hasn't been updated in 3+ years) and `psutil` (wasn't being used)
+- Switch to linting with ruff/ty
+- Removed outdated dockerfile and github actions
+
+## [0.5.2] - 2023-09-05
+
+### Change
 
 - Update dependancies and remove unnecessary development deps.
 
 
-** [0.5.1] - 2023-07-18
+## [0.5.1] - 2023-07-18
 
-*** Change
+### Change
 
 - Remove ProgressParallel class. Replace all uses of this class with `joblib.Parallel`, passing "return_as=generator"
   to speed things up/reduce memory usage
 
 
-** [0.5.0] - 2023-07-17
+## [0.5.0] - 2023-07-17
 
-*** Change
+### Change
 
 - Overhaul how the conversions and writing work so that they are now
   performed using a modified form of `joblib.Parallel`
@@ -30,17 +38,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replace `typer.progressbar` with `tqdm.rich` (because the latter works with the modified 
   `joblib.Parallel` class)
 
-** [0.4.2] - 2023-07-17
+## [0.4.2] - 2023-07-17
 
-*** Fix
+### Fix
 
 - Minimum python version
 - running `plinkliftover` with no arguments now shows the help
 
 
-** [0.4.1]
+## [0.4.1]
 
-*** Added
+### Added
 
 - Updated gitignore
 
@@ -121,6 +129,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - replace `set` and `tuple` in type hints with their `typing.Set` and `typing.Tuple` counterparts
 
+[0.6.0]: https://github.com/milescsmith/PLINKLiftOver/compare/0.5.2...0.6.0
 [0.5.2]: https://github.com/milescsmith/PLINKLiftOver/compare/0.5.1...0.5.2
 [0.5.1]: https://github.com/milescsmith/PLINKLiftOver/compare/0.5.0...0.5.1
 [0.5.0]: https://github.com/milescsmith/PLINKLiftOver/compare/0.4.2...0.5.0

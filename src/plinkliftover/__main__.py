@@ -1,8 +1,8 @@
-from distutils.spawn import find_executable
 from pathlib import Path
 from typing import Annotated, Optional
 
 import typer
+from distutils.spawn import find_executable
 from loguru import logger
 
 from plinkliftover import app, console, verbosity_level, version_callback
@@ -42,7 +42,7 @@ def liftover(
     liftoverexecutable: Annotated[
         Optional[str], typer.Option(help="The location of the `liftOver` executable.")  # noqa UP007
     ] = None,
-    version: Annotated[  # noqa ARG007
+    version: Annotated[
         bool,
         typer.Option(
             "-V",
