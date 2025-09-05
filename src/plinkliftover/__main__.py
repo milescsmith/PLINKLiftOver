@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Annotated, Optional
 
 import typer
-from distutils.spawn import find_executable
+from shutil import which
 from loguru import logger
 
 from plinkliftover import app, console, verbosity_level, version_callback
@@ -67,7 +67,7 @@ def liftover(
     # If a location is not specified for the liftOver executable.
     # assume it is in the User's $PATH.
     if liftoverexecutable is None:
-        if (lop := find_executable("liftOver")) is not None:
+        if (lop := which("liftOver")) is not None:
             lift_over_path = Path(lop)
             if not lift_over_path.exists():
                 msg = "The `liftOver` executable was not found.  Please make sure it is installed and in the PATH"

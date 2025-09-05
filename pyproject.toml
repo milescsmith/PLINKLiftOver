@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "plinkliftover"
-version = "0.6.0"
+version = "0.6.1"
 description = "Converts genotype data stored in plink's PED+MAP format from one genome build to another, using liftOver"
 readme = "README.md"
 requires-python = ">=3.10"
