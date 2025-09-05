@@ -1,8 +1,8 @@
 from pathlib import Path
+from shutil import which
 from typing import Annotated, Optional
 
 import typer
-from distutils.spawn import find_executable
 from loguru import logger
 
 from plinkliftover import app, console, verbosity_level, version_callback
@@ -16,7 +16,7 @@ from plinkliftover.map2bed import map2bed
 def liftover(
     mapfile: Annotated[
         Path,
-        typer.Argument(help="The plink MAP file to `liftOver`."),
+        typer.Argument(help="The PLINK MAP file to `liftOver`."),
     ],
     chainfile: Annotated[Path, typer.Argument(help="The location of the chain files to provide to `liftOver`.")],
     pedfile: Annotated[
@@ -56,18 +56,14 @@ def liftover(
     """Converts genotype data stored in plink's PED+MAP format from one genome
     build to another, using liftOver.
     """
-    # Show usage message if user hasn't provided any arguments, rather
-    # than giving a non-descript error message with the usage()
-
     init_logger(verbose=verbosity_level)
-
-    oldbed = mapfile.with_suffix(".bed")
-    map2bed(mapfile, oldbed)
 
     # If a location is not specified for the liftOver executable.
     # assume it is in the User's $PATH.
+    # If we can't find liftOver, what is even the point of doing anything else?
+    # TODO: replace this with pyliftover or our own implementation
     if liftoverexecutable is None:
-        if (lop := find_executable("liftOver")) is not None:
+        if (lop := which("liftOver")) is not None:
             lift_over_path = Path(lop)
             if not lift_over_path.exists():
                 msg = "The `liftOver` executable was not found.  Please make sure it is installed and in the PATH"
@@ -80,22 +76,20 @@ def liftover(
             logger.exception(msg)
             raise FileNotFoundError(msg)
 
+    # set names
+    oldbed = mapfile.with_suffix(".bed")
     newbed = Path(f"{mapfile}.bed")
-    lifted_set, unlifted_set, lb_status = lift_bed(
+    newmap = Path(f"{prefix}.map")
+
+    map2bed(mapfile, oldbed)
+
+    lifted_set, unlifted_set = lift_bed(
         fin=oldbed,
         fout=newbed,
         chainfile=chainfile,
         lift_over_path=lift_over_path,
     )
 
-    if lb_status:
-        console.print("lifting [purple]bed[/] file: [green bold]SUCCESS[/]")
-        logger.info(f"lifting bed file: {newbed} - SUCCESS")
-    else:
-        console.print("lifting [purple]bed[/] file: [red bold]FAILED[/]")
-        logger.info(f"lifting bed file: {newbed} - FAILED")
-
-    newmap = Path(f"{prefix}.map")
     bed2map(newbed, newmap)
 
     if datfile is not None:
@@ -103,6 +97,7 @@ def liftover(
         console.print(f"[pink]{datfile.name}[/]")
         newdat = Path(f"{prefix}.dat")
 
+        # should move this into the function itself, along with some error handling
         if lift_dat(fin=datfile, fout=newdat, lifted_set=lifted_set):
             console.print("lifting [purple]dat[/] file: [green]SUCCESS[/]")
             logger.info(f"lifting map file: {newmap} - SUCCESS")
@@ -115,6 +110,7 @@ def liftover(
         console.print(f"[pink]{pedfile.name}[/]")
         new_ped = Path(f"{prefix}.ped")
 
+        # same
         if lift_ped(fin=pedfile, fout=new_ped, foldmap=mapfile, unlifted_set=unlifted_set):
             console.print("lifting [dark_orange3]ped[/] file: [bold green]SUCCESS[/]")
             logger.info("lifting ped file: SUCCESS")
